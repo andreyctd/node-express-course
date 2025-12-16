@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 3 Express</title>
+  </head>
+  <body>
+    <h1>Hello from Express!</h1>
+
+    <button id="load">Load Products</button>
+    <div id="output"></div>
+
+    <script>
+      document.getElementById("load").addEventListener("click", async () => {
+        const res = await fetch("/api/v1/products");
+        const data = await res.json();
+
+        document.getElementById("output").innerHTML =
+          "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+      });
+    </script>
+  </body>
+</html>
