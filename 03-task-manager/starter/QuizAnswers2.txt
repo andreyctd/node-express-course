@@ -1,0 +1,53 @@
+1. You created the asyncWrapper middleware to handle errors from async route handlers in a clean, reusable way.
+
+In Express, if an async function throws an error or a promise is rejected, Express does not automatically catch it. Without a wrapper, you’d need try/catch blocks in every async route.
+
+What asyncWrapper does:
+
+- Wraps an async controller function
+
+- Automatically catches any errors
+
+- Forwards those errors to Express’s error-handling middleware using next(err)
+
+Why this is useful:
+
+✅ Avoids repeating try/catch in every route
+
+✅ Prevents unhandled promise rejections
+
+✅ Keeps route handlers clean and readable
+
+✅ Centralizes error handling
+
+Conceptually:
+
+Instead of this everywhere:
+
+try {
+  // async logic
+} catch (error) {
+  next(error)
+}
+
+You write it once in asyncWrapper and reuse it across routes.
+
+In short:
+asyncWrapper exists to simplify async error handling and keep your Express code DRY and robust.
+
+
+
+2. 
+
+const getTask = asyncWrapper(async (req, res, next) => {
+  const { id: taskID } = req.params;
+  const task = await Task.findOne({ _id: taskID });
+
+  if (!task) {
+    return next(
+      new CustomAPIError(`No task with id: ${taskID}`, 404)
+    );
+  }
+
+  res.status(200).json({ task });
+});
