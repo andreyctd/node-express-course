@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JWT Frontend Demo</title>
+</head>
+<body>
+  <h1>JWT Authentication Demo</h1>
+
+  <h2>Login</h2>
+  <input type="text" id="name" placeholder="Enter name" />
+  <input type="password" id="password" placeholder="Enter password" />
+  <button onclick="login()">Login</button>
+
+  <h2>Protected Route</h2>
+  <button onclick="getHello()">Get Hello</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    const output = document.getElementById("output");
+
+    // Login function
+    async function login() {
+      const name = document.getElementById("name").value;
+      const password = document.getElementById("password").value;
+
+      if (!name || !password) {
+        output.textContent = "Please enter name and password";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/v1/logon", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("token", data.token);
+          output.textContent = "Login successful! Token saved.";
+        } else {
+          output.textContent = data.message;
+        }
+      } catch (err) {
+        output.textContent = "Error logging in: " + err;
+      }
+    }
+
+    // Get protected /hello route
+    async function getHello() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        output.textContent = "No token found. Please log in first.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/v1/hello", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (res.status === 401) {
+          output.textContent = "Unauthorized: Token invalid or expired";
+          localStorage.removeItem("token");
+        } else {
+          output.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        output.textContent = "Error fetching hello: " + err;
+      }
+    }
+  </script>
+</body>
+</html>
